@@ -12,7 +12,6 @@ import {
   Header,
   RegistrationRow,
   downloadAsCSV,
-  downloadAsSpreadsheet,
   parseCSVFileFromInput,
   toDisplayValue,
 } from "../data";
@@ -215,42 +214,6 @@ function Dashboard() {
               }
             >
               Filtered CSV Download
-            </a>
-          )}
-        </div>
-
-        <div className="flex space-x-2">
-          <a
-            class={
-              "block flex-1 rounded-md bg-green-700 px-6 py-3 text-center text-white drop-shadow-sm transition-all hover:bg-green-800"
-            }
-            href={"#"}
-            onClick={() =>
-              downloadAsSpreadsheet(
-                headers,
-                rows,
-                `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}`
-              )
-            }
-          >
-            Excel Download
-          </a>
-
-          {isFiltering && (
-            <a
-              class={
-                "block flex-1 rounded-md bg-green-200 px-6 py-3 text-center text-green-900 drop-shadow-sm transition-all hover:bg-green-300"
-              }
-              href={"#"}
-              onClick={() =>
-                downloadAsSpreadsheet(
-                  filteredHeaders,
-                  rows,
-                  `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}`
-                )
-              }
-            >
-              Filtered Excel Download
             </a>
           )}
         </div>

@@ -1,5 +1,4 @@
 import { ParseResult, parse, unparse } from "papaparse";
-import { utils, writeFileXLSX } from "xlsx";
 
 export type Header = string;
 // type Header = (typeof HEADERS)[number];
@@ -210,20 +209,6 @@ export function applyTransforms(
 
   return [headers, rows];
 }
-
-export const downloadAsSpreadsheet = (
-  headers: string[],
-  rows: RegistrationRow[],
-  filename: string
-) => {
-  const workbook = utils.book_new();
-  const sheet = utils.json_to_sheet(rows, {
-    header: headers,
-  });
-  utils.book_append_sheet(workbook, sheet);
-
-  writeFileXLSX(workbook, filename + ".xlsx");
-};
 
 /** Returns a object URL for the row data in a CSV file.  */
 export const downloadAsCSV = (

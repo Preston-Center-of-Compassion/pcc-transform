@@ -21,11 +21,9 @@
     ]
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.21.0",
     "clsx": "^1.2.1",
     "papaparse": "^5.4.1",
-    "preact": "^10.10.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
+    "preact": "^10.10.0"
   },
   "devDependencies": {
     "@types/enzyme": "^3.10.12",
