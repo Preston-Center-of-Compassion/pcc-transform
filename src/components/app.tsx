@@ -275,7 +275,7 @@ function App() {
   return (
     <Data.Provider value={data}>
       <div id="app">
-        <main class={"container mx-auto my-16 space-y-5"}>
+        <main class={"mx-auto px-5 my-16 space-y-5"}>
           {!file && (
             <div>
               Download a CSV of the{" "}
