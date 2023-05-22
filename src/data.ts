@@ -1,7 +1,13 @@
-import { ParseResult, parse, unparse } from "papaparse";
+import { parse, unparse } from "papaparse";
+import { ParseError } from "papaparse";
 
+export type CellValue = string | boolean | number | null | undefined;
 export type Header = string;
-// type Header = (typeof HEADERS)[number];
+export type Row = Record<Header, CellValue>;
+export type Report = {
+  headers: Header[];
+  rows: Row[];
+}
 
 const COHORT_TO_GROUP = {
   "5-6 girls": "Candyland",
@@ -41,19 +47,29 @@ const SECTION_HEADERS = [
   "2-Week Camp: Extended Hours",
 ];
 
-export type RegistrationRowArray = (string | number | boolean | null)[];
-export type RegistrationRow = Record<Header, string | number | boolean | null>;
-export type RowWarnings = Record<number, string[]>;
-export type CellWarnings = Record<number, Record<Header, string[]>>;
+
 
 /** A function that transforms row and header data. */
 type Transform = (
-  headers: Header[],
-  rows: RegistrationRow[]
-) => [string[], RegistrationRow[], RowWarnings, CellWarnings];
+  report: Report,
+) => void;
+
+export const sanitizeValue = (val: CellValue): CellValue => {
+  if (typeof val === "string") {
+    val = val.trim();
+
+    // Convert strings to bools
+    if (val.startsWith("Yes,") || val === "Yes") {
+      val = true;
+    } else if (val.startsWith("No,") || val === "No") {
+      val = false;
+    }
+  }
+  return val;
+}
 
 /** Given a value, returns a general display string. */
-export const toDisplayValue = (val: string | number | boolean | null) => {
+export const toDisplayValue = (val: CellValue) => {
   switch (typeof val) {
     case "number":
       return val.toString();
@@ -71,43 +87,37 @@ export const toDisplayValue = (val: string | number | boolean | null) => {
 /** Given a File with CSV content, parses it and applies the needed transforms, returning the complete, transformed data. */
 export function parseCSVFileFromInput(
   file: File
-): Promise<ParseResult<RegistrationRow>> {
+): Promise<Report> {
   // Promisify papaparse's parse functions
   return new Promise((resolve, reject) => {
-    parse<RegistrationRowArray>(file, {
+    parse<CellValue[]>(file, {
       // Convert numbers and booleans
       dynamicTyping: true,
       complete(results, file) {
-        let [headers, ...rowArrays] = results.data;
+        let [rawHeaders, ...rowArrays] = results.data;
 
         // Remove empty last row
         rowArrays.pop();
 
-        let rows = mergeRepeatedColumns(headers as string[], rowArrays);
+        let report = createReport(rawHeaders as string[], rowArrays);
 
-        // Remove duplicate headers
-        headers = [...new Set(headers)];
+        console.log(report);
+        
 
-        // Apply transformations
-        [headers, rows] = applyTransforms(
-          headers as Header[],
-          rows,
+        // // Apply transformations
+        applyTransforms(
+          report,
           removeColumns,
-          castColumns,
+          castSignOffColumns,
           calculateAgeAndCohort,
           assignWeeks,
           assignSource,
           assignContact,
-          aggregateSignOffs,
-          assignFormStatus,
+          // assignFormStatus,
           sandbox
         );
-        results.meta.fields = headers as string[];
-        return resolve({
-          data: rows,
-          errors: results.errors,
-          meta: results.meta,
-        });
+        
+        return resolve(report);
       },
       error(error, file) {
         return reject(error);
@@ -117,103 +127,42 @@ export function parseCSVFileFromInput(
 }
 
 /** Merges any duplicate columns and turns row arrays into row objects. */
-export function mergeRepeatedColumns(
+export function createReport(
   headers: string[],
-  data: RegistrationRowArray[]
-) {
-  const objectRows: RegistrationRow[] = [];
-  for (const row of data) {
-    /** The row of data in combined object form with headers as keys. */
-    const objectRow: RegistrationRow = {};
-
-    // Iterate through
-    row.forEach((val, headerIndex) => {
-      const header = headers[headerIndex];
-
-      // Check if we already have data for this header in this row, and we have new data
-      if (objectRow[header]) {
-        console.warn("Found dup column", {
-          header,
-        });
-        if (val) {
-          console.warn(`Overwriting data from duplicate columns`, {
-            header,
-            currentValue: objectRow[header],
-            newValue: val,
-          });
+  rowArrays: CellValue[][]
+): Report {
+  return {
+    headers: [...new Set(headers)],
+    rows: rowArrays.map(rowArray => rowArray.reduce((row, value, headerIndex) => {
+        // Iterate through value array (which corresponds to headers array)
+        value = sanitizeValue(value);
+        const header = headers[headerIndex];
+  
+        // Set value of cell if not yet set
+        return {
+          ...row,
+          [header]: !row[header] && value ? value : row[header]
         }
-      }
-
-      // Trim all strings
-      if (typeof val === "string") {
-        val = val.trim();
-
-        // Convert strings to bools
-        if (val.startsWith("Yes,") || val === "Yes") {
-          val = true;
-        } else if (val.startsWith("No,") || val === "No") {
-          val = false;
-        }
-      }
-
-      if (!objectRow[header] && val) {
-        objectRow[header] = val;
-      }
-    });
-
-    objectRows.push(objectRow);
+      }, {})
+    )
   }
-  return objectRows;
 }
 
 /** Applies given transforms in order on the data. */
 export function applyTransforms(
-  headers: string[],
-  rows: RegistrationRow[],
+  report: Report,
   ...transforms: Transform[]
-): [string[], RegistrationRow[]] {
-  const rowWarnings: RowWarnings = {};
-  const cellWarnings: CellWarnings = {};
+) {
   for (const transform of transforms) {
-    const [newHeaders, newRows, newRowWarnings, newCellWarnings] = transform(
-      headers,
-      rows
-    );
-    headers = newHeaders;
-    rows = newRows;
-
-    for (let rowIndex in newRowWarnings) {
-      if (!rowWarnings[rowIndex]) {
-        rowWarnings[rowIndex] = [];
-      }
-      rowWarnings[rowIndex] = rowWarnings[rowIndex].concat(
-        newRowWarnings[rowIndex]
-      );
-    }
-
-    for (let rowIndex in newCellWarnings) {
-      if (!cellWarnings[rowIndex]) {
-        cellWarnings[rowIndex] = {};
-      }
-      const newCellWarning = newCellWarnings[rowIndex];
-      for (const header in newCellWarning) {
-        if (!cellWarnings[rowIndex][header]) {
-          cellWarnings[rowIndex][header] = [];
-        }
-        cellWarnings[rowIndex][header] = cellWarnings[rowIndex][header].concat(
-          newCellWarning[header]
-        );
-      }
-    }
+    transform(report);
+    report.headers = [...new Set(report.rows.flatMap((row)=> Object.keys(row)))]
   }
-
-  return [headers, rows];
 }
 
 /** Returns a object URL for the row data in a CSV file.  */
 export const downloadAsCSV = (
-  headers: string[],
-  rows: RegistrationRow[],
+  headers: Report["headers"],
+  rows: Report["rows"],
   filename: string
 ) => {
   const data = unparse(
@@ -237,7 +186,7 @@ export const downloadAsCSV = (
 
 // TRANSFORMS
 
-export const calculateAgeAndCohort: Transform = (headers, rows) => {
+export const calculateAgeAndCohort: Transform = (report) => {
   const referenceDate = new Date("06/26/2023");
 
   function calculateAge(birthDate: Date) {
@@ -254,7 +203,7 @@ export const calculateAgeAndCohort: Transform = (headers, rows) => {
     return years;
   }
 
-  const transformedRows = rows.map((row) => {
+  report.rows.forEach((row) => {
     const birthDate = new Date(row["Participant Birth date"] as string);
     const newAge = calculateAge(birthDate);
 
@@ -298,7 +247,7 @@ export const calculateAgeAndCohort: Transform = (headers, rows) => {
         oldCohort: row["Cohort"],
       });
 
-      return row;
+      return;
     }
 
     const [descriptor, cohortName] = found;
@@ -318,24 +267,20 @@ export const calculateAgeAndCohort: Transform = (headers, rows) => {
     row["Cohort"] = descriptor;
     row["Cohort Group Name"] = cohortName;
 
-    return row;
   });
-
-  return [headers.concat("Cohort Group Name"), transformedRows, {}, {}];
 };
 
 const removeColumns: Transform = (
-  headers: string[],
-  data: RegistrationRow[]
+  report
 ) => {
-  for (const row of data) {
+  for (const row of report.rows) {
     delete row["Text"];
   }
-  return [headers.filter((h) => h !== "Text"), data, {}, {}];
+  report.headers = report.headers.filter((h) => h !== "Text");
 };
 
-const assignWeeks: Transform = (headers, rows) => {
-  const newRows = rows.map((row) => {
+const assignWeeks: Transform = (report) => {
+  report.rows.forEach((row) => {
     let weeks = new Set<string>();
 
     WEEKS.forEach((weekSpan, weekIndex) => {
@@ -366,76 +311,50 @@ const assignWeeks: Transform = (headers, rows) => {
         row,
       });
     }
-
-    return row;
   });
-  return [
-    [...WEEKS.map((_, i) => `Week ${i + 1}`), ...headers, "Weeks"],
-    newRows,
-    {},
-    {},
-  ];
 };
 
-const assignSource: Transform = (headers, rows) => {
-  const newRows = rows.map((row) => {
+const assignSource: Transform = (report) => {
+  report.rows.forEach((row) => {
     row["Source"] = SECTION_HEADERS.some(
       (col) => row[col] && (row[col] as string).includes("Full Day")
     )
       ? "FED"
       : "Rec Prog";
   });
-  return [headers.concat("Source"), rows, {}, {}];
 };
 
-const assignContact: Transform = (headers, rows) => {
-  rows.forEach((row) => {
+const assignContact: Transform = (report) => {
+  report.rows.forEach((row) => {
     row[
       "Contact"
     ] = `${row["Participant First Name"]} ${row["Participant Last Name"]}`;
   });
-  return [headers.concat("Contact"), rows, {}, {}];
-};
-
-const aggregateSignOffs: Transform = (headers, rows) => {
-  rows.forEach((row) => {
-    row["General Maritime: Sign Off"] =
-      row[
-        "Maritime Waterfront Swimming Program Authorization Release for ages 5-14: Sign Off"
-      ] ||
-      row[
-        "Maritime Waterfront Activities Program Authorization Release for ages 9-14: Sign Off"
-      ];
-  });
-  return [headers.concat("General Maritime: Sign Off"), rows, {}, {}];
 };
 
 const assignFormStatus: Transform = (headers, rows) => {
   rows.forEach((row) => {
     // row["Form Status"] =
   });
-  return [headers.concat("Form Status"), rows, {}, {}];
 };
 
-const castColumns: Transform = (headers, rows) => {
-  const boolColumns = headers.filter((h) => h.endsWith(": Sign Off"));
+const castSignOffColumns: Transform = (report) => {
+  const boolColumns = report.headers.filter((h) => h.endsWith(": Sign Off"));
 
-  rows.forEach((row) => {
+  report.rows.forEach((row) => {
     boolColumns.forEach((col) => (row[col] = Boolean(row[col])));
   });
-  return [headers, rows, {}, {}];
 };
 
-const sandbox: Transform = (headers, rows) => {
+const sandbox: Transform = (report) => {
   // ----
   // SANDBOX
 
-  for (const row of rows) {
+  for (const row of report.rows) {
     if (row["Participant First Name"] === "Sinead") {
       console.log(row);
     }
   }
   // ----
 
-  return [headers, rows, {}, {}];
 };
