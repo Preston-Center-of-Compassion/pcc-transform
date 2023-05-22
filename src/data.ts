@@ -1,5 +1,4 @@
 import { parse, unparse } from "papaparse";
-import { ParseError } from "papaparse";
 
 export type CellValue = string | boolean | number | null | undefined;
 export type Header = string;
@@ -75,7 +74,7 @@ export const toDisplayValue = (val: CellValue) => {
       return val.toString();
     case "string":
       return val.trim().length > 50
-        ? val.trim().slice(0, 50) + "..."
+        ? `${val.trim().slice(0, 50)  }...`
         : val.trim();
     case "boolean":
       return val ? "Yes" : "No";
@@ -93,13 +92,13 @@ export function parseCSVFileFromInput(
     parse<CellValue[]>(file, {
       // Convert numbers and booleans
       dynamicTyping: true,
-      complete(results, file) {
-        let [rawHeaders, ...rowArrays] = results.data;
+      complete(results) {
+        const [rawHeaders, ...rowArrays] = results.data;
 
         // Remove empty last row
         rowArrays.pop();
 
-        let report = createReport(rawHeaders as string[], rowArrays);
+        const report = createReport(rawHeaders as string[], rowArrays);
 
         console.log(report);
         
@@ -119,7 +118,7 @@ export function parseCSVFileFromInput(
         
         return resolve(report);
       },
-      error(error, file) {
+      error(error) {
         return reject(error);
       },
     });
@@ -214,12 +213,12 @@ export const calculateAgeAndCohort: Transform = (report) => {
 
     // Find proper cohort based on age at start of program
     const found = Object.entries(COHORT_TO_GROUP).find(
-      ([descriptor, cohortName]) => {
+      ([descriptor]) => {
         // descriptor = "4 yo boys" / "5-6 yo girls", we want [4] / [5, 6]
         const ages = descriptor
           .split(" ")[0]
           .split("-")
-          .map((c) => parseInt(c));
+          .map((c) => parseInt(c, 10));
 
         // Handle edge cases where participant is 1 year out of accepted age ranges
         let adjustedAge = newAge;
@@ -281,7 +280,7 @@ const removeColumns: Transform = (
 
 const assignWeeks: Transform = (report) => {
   report.rows.forEach((row) => {
-    let weeks = new Set<string>();
+    const weeks = new Set<string>();
 
     WEEKS.forEach((weekSpan, weekIndex) => {
       const key = `Week ${weekIndex + 1}`;
@@ -301,7 +300,7 @@ const assignWeeks: Transform = (report) => {
     row["Weeks"] = Array.from(weeks).join(", ");
 
     const paidWeeks = parseInt(
-      (row["Sections"] as string).replace("Full ", "")[0]
+      (row["Sections"] as string).replace("Full ", "")[0], 10
     );
 
     if (weeks.size !== paidWeeks) {
@@ -332,11 +331,11 @@ const assignContact: Transform = (report) => {
   });
 };
 
-const assignFormStatus: Transform = (headers, rows) => {
-  rows.forEach((row) => {
-    // row["Form Status"] =
-  });
-};
+// const assignFormStatus: Transform = (report) => {
+//   report.rows.forEach((row) => {
+//     // row["Form Status"] =
+//   });
+// };
 
 const castSignOffColumns: Transform = (report) => {
   const boolColumns = report.headers.filter((h) => h.endsWith(": Sign Off"));
