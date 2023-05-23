@@ -1,8 +1,8 @@
-import { h } from "preact";
+import { h, ComponentChild } from "preact";
 
 interface CardProps {
   className?: string;
-  children: any;
+  children: ComponentChild;
 }
 
 export default function Card({ className, children }: CardProps) {

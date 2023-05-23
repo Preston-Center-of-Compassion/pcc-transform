@@ -9,8 +9,7 @@ import {
 import { loadData, storeData } from "../storage";
 import FilePicker from "./FilePicker";
 import {
-  Header,
-  RegistrationRow,
+  Report,
   downloadAsCSV,
   parseCSVFileFromInput,
   toDisplayValue,
@@ -19,32 +18,32 @@ import clsx from "clsx";
 
 type HeadersMask = Record<string, boolean>;
 type Data = {
-  headers: Header[];
+  report: Report;
   headersMask: HeadersMask;
   setHeadersMask: StateUpdater<HeadersMask>;
-  rows: RegistrationRow[];
   search: string;
   setSearch: StateUpdater<string>;
 };
-type Response = Pick<Data, "headers" | "rows">;
 
 const Data = createContext<Data>({
-  headers: [],
+  report: {
+    headers: [],
+    rows: []
+  },
   headersMask: {},
-  rows: [],
   search: "",
   setSearch: null,
   setHeadersMask: null,
 });
 
 function Table({ className }: { className?: string }) {
-  const { headers, headersMask, rows } = useContext(Data);
+  const { report, headersMask } = useContext(Data);
 
   return (
     <table class={clsx("text-center", className)}>
       <thead class="sticky top-0">
         <tr>
-          {headers.map((header) => {
+          {report.headers.map((header) => {
             if (headersMask[header]) {
               return (
                 <th
@@ -60,9 +59,9 @@ function Table({ className }: { className?: string }) {
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
-          <tr>
-            {headers.map((header) => {
+        {report.rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {report.headers.map((header) => {
               if (headersMask[header]) {
                 return (
                   <td
@@ -87,7 +86,7 @@ function Table({ className }: { className?: string }) {
 }
 
 function Filters() {
-  const { headers, headersMask, rows, search, setHeadersMask, setSearch } =
+  const { report, headersMask, search, setHeadersMask, setSearch } =
     useContext(Data);
 
   const toggleHeader = (header: string) => {
@@ -96,7 +95,7 @@ function Filters() {
   };
 
   function reset() {
-    const newHeadersMask = headers.reduce(
+    const newHeadersMask = report.headers.reduce(
       (obj, header) => ({ ...obj, [header]: false }),
       {}
     );
@@ -114,12 +113,12 @@ function Filters() {
   };
 
   const filteredHeaders = search.trim()
-    ? headers.filter((header) =>
+    ? report.headers.filter((header) =>
         header.toLowerCase().includes(search.toLowerCase())
       )
-    : headers;
+    : report.headers;
   const isFiltering =
-    filteredHeaders.length !== headers.length && filteredHeaders.length > 0;
+    filteredHeaders.length !== report.headers.length && filteredHeaders.length > 0;
 
   return (
     <div class="mr-3 w-48">
@@ -174,7 +173,7 @@ function Filters() {
 }
 
 function Dashboard() {
-  const { headers, headersMask, rows } = useContext(Data);
+  const { report: { headers, rows }, headersMask } = useContext(Data);
 
   const filteredHeaders = headers.filter((header) => headersMask[header]);
   const isFiltering =
@@ -229,7 +228,7 @@ function Dashboard() {
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
-  const [response, setResponse] = useState<Response | null>(null);
+  const [report, setReport] = useState<Report | null>(null);
   const [search, setSearch] = useState<string>("");
   const [headersMask, setHeadersMask] = useState<HeadersMask>({});
 
@@ -239,13 +238,13 @@ function App() {
 
   const data = useMemo<Data>(
     () => ({
-      ...response,
+      report,
       headersMask,
       setHeadersMask,
       search,
       setSearch,
     }),
-    [response, headersMask, setHeadersMask, search, setSearch]
+    [report, headersMask, setHeadersMask, search, setSearch]
   );
 
   const handleFiles = async (files: FileList) => {
@@ -253,21 +252,17 @@ function App() {
       const file = files[0];
       setFile(file);
 
-      parseCSVFileFromInput(file).then((results) => {
-        const response = {
-          headers: results.meta.fields,
-          rows: results.data,
-        } as Response;
-        setResponse(response);
-        if (headersMask) {
-          setHeadersMask(
-            loadData<HeadersMask>("headersMask") ??
-              response.headers.reduce(
-                (mask, header) => ({ ...mask, [header]: false }),
-                {}
-              )
-          );
-        }
+      parseCSVFileFromInput(file).then((report) => {
+        console.log(report);
+        
+        setReport(report);
+        setHeadersMask(
+          loadData<HeadersMask>("headersMask") ??
+          report.headers.reduce(
+              (mask, header) => ({ ...mask, [header]: false }),
+              {}
+            )
+        );
       });
     }
   };
@@ -275,14 +270,14 @@ function App() {
   return (
     <Data.Provider value={data}>
       <div id="app">
-        <main class={"container mx-auto my-16 space-y-5"}>
+        <main class={"mx-auto px-5 my-16 space-y-5"}>
           {!file && (
             <div>
               Download a CSV of the{" "}
               <a
                 class="text-red-900 underline"
                 target="_blank"
-                href="https://www.familyid.com/organizations/11694/reports"
+                href="https://www.familyid.com/organizations/11694/reports" rel="noreferrer"
               >
                 Camp 2023 Report
               </a>{" "}
@@ -300,7 +295,7 @@ function App() {
             prompt="Drag and drop the FamilyID CSV report here."
           />
 
-          {response && <Dashboard />}
+          {report && <Dashboard />}
         </main>
       </div>
     </Data.Provider>
