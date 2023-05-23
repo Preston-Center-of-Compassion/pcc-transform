@@ -314,7 +314,7 @@ export const calculateAgeAndCohort: Transform = (headers, rows) => {
     }
 
     row["Participant Gender"] =
-      row["Participant Gender"] == "male" ? "Boys" : "Girls";
+      row["Participant Gender"] == "male" ? "Male" : "Female";
     row["Cohort"] = descriptor;
     row["Cohort Group Name"] = cohortName;
 
