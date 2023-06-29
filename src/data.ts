@@ -44,6 +44,8 @@ const SECTION_HEADERS = [
   "3-Week Camp: Extended Hours",
   "2-Week Camp: Week options",
   "2-Week Camp: Extended Hours",
+  "1-Week Camp: Week options",
+  "1-Week Camp: Extended Hours",
 ];
 
 
