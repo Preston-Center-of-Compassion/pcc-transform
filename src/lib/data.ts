@@ -8,6 +8,7 @@ export type Report = {
   rows: Row[];
 }
 
+
 /** A function that transforms row and header data. */
 export type Transform = (
   report: Report,
@@ -147,6 +148,16 @@ export const removeColumns: Transform = (
   }
   report.headers = report.headers.filter((h) => h !== "Text");
 };
+
+export const fixWeirdCharacters: Transform = (report) => {
+  for (const row of report.rows) {
+    for (const header of report.headers) {
+      if (typeof row[header] === "string") {
+        row[header] = (row[header] as string).replace("’", "'")
+      }
+    }
+  }
+}
 
 
 export const assignContact: Transform = (report) => {
