@@ -18,6 +18,7 @@ import {
 } from "../lib/data";
 import clsx from "clsx";
 import { Data, Filters, HeadersMask, Table } from "../display";
+import { assignDays, assignProgram } from "../lib/afterschool";
 
 function Dashboard() {
   const {
@@ -106,6 +107,8 @@ function AfterschoolPage(props: { url?: string; path?: string}) {
         removeColumns,
         castSignOffColumns,
         fixWeirdCharacters,
+        assignDays,
+        assignProgram,
         assignContact,
       ]).then((report) => {
         console.log(report);
