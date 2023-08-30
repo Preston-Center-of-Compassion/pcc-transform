@@ -127,7 +127,6 @@ function AfterschoolPage(props: { url?: string; path?: string}) {
 
   return (
     <Data.Provider value={data}>
-      <div id="app">
         <main class={"mx-auto px-5 my-16 space-y-5"}>
           {!file && (
             <div>
@@ -156,7 +155,6 @@ function AfterschoolPage(props: { url?: string; path?: string}) {
 
           {report && <Dashboard />}
         </main>
-      </div>
     </Data.Provider>
   );
 }

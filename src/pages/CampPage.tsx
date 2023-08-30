@@ -126,36 +126,34 @@ function CampPage(props: { url?: string; path?: string}) {
 
   return (
     <Data.Provider value={data}>
-      <div id="app">
-        <main class={"mx-auto px-5 my-16 space-y-5"}>
-          {!file && (
-            <div>
-              Download a CSV of the{" "}
-              <a
-                class="text-red-900 underline"
-                target="_blank"
-                href="https://www.familyid.com/organizations/11694/reports"
-                rel="noreferrer"
-              >
-                Camp 2023 Report
-              </a>{" "}
-              from FamilyID first.
-            </div>
+      <main class={"mx-auto px-5 my-16 space-y-5"}>
+        {!file && (
+          <div>
+            Download a CSV of the{" "}
+            <a
+              class="text-red-900 underline"
+              target="_blank"
+              href="https://www.familyid.com/organizations/11694/reports"
+              rel="noreferrer"
+            >
+              Camp 2023 Report
+            </a>{" "}
+            from FamilyID first.
+          </div>
+        )}
+
+        <FilePicker
+          className={clsx(
+            "p-10 transition-all duration-1000 ease-in-out",
+            file ? "h-16" : "h-screen"
           )}
+          accept=".csv"
+          onChange={handleFiles}
+          prompt="Drag and drop the FamilyID CSV report here."
+        />
 
-          <FilePicker
-            className={clsx(
-              "p-10 transition-all duration-1000 ease-in-out",
-              file ? "h-16" : "h-screen"
-            )}
-            accept=".csv"
-            onChange={handleFiles}
-            prompt="Drag and drop the FamilyID CSV report here."
-          />
-
-          {report && <Dashboard />}
-        </main>
-      </div>
+        {report && <Dashboard />}
+      </main>
     </Data.Provider>
   );
 }
