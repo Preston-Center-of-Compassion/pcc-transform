@@ -10,11 +10,15 @@ import { loadData, storeData } from "../storage";
 import FilePicker from "./FilePicker";
 import {
   Report,
+  assignContact,
+  castSignOffColumns,
   downloadAsCSV,
   parseCSVFileFromInput,
+  removeColumns,
   toDisplayValue,
 } from "../data";
 import clsx from "clsx";
+import { calculateAgeAndCohort, assignWeeks, assignSource } from "../camp";
 
 type HeadersMask = Record<string, boolean>;
 type Data = {
@@ -28,7 +32,7 @@ type Data = {
 const Data = createContext<Data>({
   report: {
     headers: [],
-    rows: []
+    rows: [],
   },
   headersMask: {},
   search: "",
@@ -118,7 +122,8 @@ function Filters() {
       )
     : report.headers;
   const isFiltering =
-    filteredHeaders.length !== report.headers.length && filteredHeaders.length > 0;
+    filteredHeaders.length !== report.headers.length &&
+    filteredHeaders.length > 0;
 
   return (
     <div class="mr-3 w-48">
@@ -173,7 +178,10 @@ function Filters() {
 }
 
 function Dashboard() {
-  const { report: { headers, rows }, headersMask } = useContext(Data);
+  const {
+    report: { headers, rows },
+    headersMask,
+  } = useContext(Data);
 
   const filteredHeaders = headers.filter((header) => headersMask[header]);
   const isFiltering =
@@ -252,13 +260,20 @@ function App() {
       const file = files[0];
       setFile(file);
 
-      parseCSVFileFromInput(file).then((report) => {
+      parseCSVFileFromInput(file, [
+        removeColumns,
+        castSignOffColumns,
+        calculateAgeAndCohort,
+        assignWeeks,
+        assignSource,
+        assignContact,
+      ]).then((report) => {
         console.log(report);
-        
+
         setReport(report);
         setHeadersMask(
           loadData<HeadersMask>("headersMask") ??
-          report.headers.reduce(
+            report.headers.reduce(
               (mask, header) => ({ ...mask, [header]: false }),
               {}
             )
@@ -277,7 +292,8 @@ function App() {
               <a
                 class="text-red-900 underline"
                 target="_blank"
-                href="https://www.familyid.com/organizations/11694/reports" rel="noreferrer"
+                href="https://www.familyid.com/organizations/11694/reports"
+                rel="noreferrer"
               >
                 Camp 2023 Report
               </a>{" "}
