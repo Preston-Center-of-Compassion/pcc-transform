@@ -1,10 +1,5 @@
 import { h, Fragment } from "preact";
-import {
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "preact/hooks";
+import { useContext, useEffect, useMemo, useState } from "preact/hooks";
 import { loadData, storeData } from "../lib/storage";
 import FilePicker from "../components/FilePicker";
 import {
@@ -77,7 +72,7 @@ function Dashboard() {
   );
 }
 
-function AfterschoolPage(props: { url?: string; path?: string}) {
+function AfterschoolPage(props: { url?: string; path?: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -127,34 +122,34 @@ function AfterschoolPage(props: { url?: string; path?: string}) {
 
   return (
     <Data.Provider value={data}>
-        <main class={"mx-auto px-5 my-16 space-y-5"}>
-          {!file && (
-            <div>
-              Download a CSV of the{" "}
-              <a
-                class="text-red-900 underline"
-                target="_blank"
-                href="https://www.familyid.com/organizations/11694/reports/950794"
-                rel="noreferrer"
-              >
-                Afterschool 2023 Report
-              </a>{" "}
-              from FamilyID first.
-            </div>
+      <main class={"mx-auto px-5 my-16 space-y-5"}>
+        {!file && (
+          <div>
+            Download a CSV of the{" "}
+            <a
+              class="text-red-900 underline"
+              target="_blank"
+              href="https://students.arbitersports.com/organizations/11694/reports/1072445"
+              rel="noreferrer"
+            >
+              Afterschool 2024 Report
+            </a>{" "}
+            from FamilyID first.
+          </div>
+        )}
+
+        <FilePicker
+          className={clsx(
+            "p-10 transition-all duration-1000 ease-in-out",
+            file ? "h-16" : "h-screen"
           )}
+          accept=".csv"
+          onChange={handleFiles}
+          prompt="Drag and drop the FamilyID CSV report here."
+        />
 
-          <FilePicker
-            className={clsx(
-              "p-10 transition-all duration-1000 ease-in-out",
-              file ? "h-16" : "h-screen"
-            )}
-            accept=".csv"
-            onChange={handleFiles}
-            prompt="Drag and drop the FamilyID CSV report here."
-          />
-
-          {report && <Dashboard />}
-        </main>
+        {report && <Dashboard />}
+      </main>
     </Data.Provider>
   );
 }

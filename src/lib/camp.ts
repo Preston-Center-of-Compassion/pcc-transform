@@ -13,14 +13,15 @@ export const COHORT_TO_GROUP = {
   "11-13 girls": "Twister",
 } as const;
 
+/** 2024 */
 export const WEEKS = [
-  "June 26 - June 30",
-  "July 3 - July 7",
-  "July 10 - July 14",
-  "July 17 - July 21",
-  "July 24 - July 28",
-  "July 31 - August 4",
-  "August 7 - August 11",
+  "June 26 - June 28",
+  "July 1 - July 3",
+  "July 8 - July 12",
+  "July 15 - July 19",
+  "July 22 - July 26",
+  "July 29 - August 2",
+  "August 5 - August 9",
 ];
 
 export const SECTION_HEADERS = [
@@ -40,9 +41,8 @@ export const SECTION_HEADERS = [
   "1-Week Camp: Extended Hours",
 ];
 
-
 export const calculateAgeAndCohort: Transform = (report) => {
-  const referenceDate = new Date("06/26/2023");
+  const referenceDate = new Date("06/26/2024");
 
   function calculateAge(birthDate: Date) {
     let years = referenceDate.getFullYear() - birthDate.getFullYear();
@@ -68,32 +68,30 @@ export const calculateAgeAndCohort: Transform = (report) => {
     row["Participant Age"] = newAge;
 
     // Find proper cohort based on age at start of program
-    const found = Object.entries(COHORT_TO_GROUP).find(
-      ([descriptor]) => {
-        // descriptor = "4 yo boys" / "5-6 yo girls", we want [4] / [5, 6]
-        const ages = descriptor
-          .split(" ")[0]
-          .split("-")
-          .map((c) => parseInt(c, 10));
+    const found = Object.entries(COHORT_TO_GROUP).find(([descriptor]) => {
+      // descriptor = "4 yo boys" / "5-6 yo girls", we want [4] / [5, 6]
+      const ages = descriptor
+        .split(" ")[0]
+        .split("-")
+        .map((c) => parseInt(c, 10));
 
-        // Handle edge cases where participant is 1 year out of accepted age ranges
-        let adjustedAge = newAge;
-        if (newAge > 13) {
-          adjustedAge = 13;
-        } else if (newAge < 4) {
-          adjustedAge = 4;
-        }
-        return (
-          (ages.includes(adjustedAge) ||
-            (ages.length == 2 &&
-              adjustedAge > ages[0] &&
-              adjustedAge < ages[1])) &&
-          descriptor.includes(
-            row["Participant Gender"] == "male" ? "boys" : "girls"
-          )
-        );
+      // Handle edge cases where participant is 1 year out of accepted age ranges
+      let adjustedAge = newAge;
+      if (newAge > 13) {
+        adjustedAge = 13;
+      } else if (newAge < 4) {
+        adjustedAge = 4;
       }
-    );
+      return (
+        (ages.includes(adjustedAge) ||
+          (ages.length == 2 &&
+            adjustedAge > ages[0] &&
+            adjustedAge < ages[1])) &&
+        descriptor.includes(
+          row["Participant Gender"] == "male" ? "boys" : "girls"
+        )
+      );
+    });
 
     if (!found) {
       console.error(`Can't determine cohort for participant`, {
@@ -121,10 +119,8 @@ export const calculateAgeAndCohort: Transform = (report) => {
       row["Participant Gender"] == "male" ? "Male" : "Female";
     row["Cohort"] = descriptor;
     row["Cohort Group Name"] = cohortName;
-
   });
 };
-
 
 export const assignWeeks: Transform = (report) => {
   report.rows.forEach((row) => {
@@ -148,7 +144,8 @@ export const assignWeeks: Transform = (report) => {
     row["Weeks"] = Array.from(weeks).join(", ");
 
     const paidWeeks = parseInt(
-      (row["Sections"] as string).replace("Full ", "")[0], 10
+      (row["Sections"] as string).replace("Full ", "")[0],
+      10
     );
 
     if (weeks.size !== paidWeeks) {

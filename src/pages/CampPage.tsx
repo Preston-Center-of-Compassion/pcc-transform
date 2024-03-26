@@ -1,10 +1,5 @@
 import { h, Fragment } from "preact";
-import {
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "preact/hooks";
+import { useContext, useEffect, useMemo, useState } from "preact/hooks";
 import { loadData, storeData } from "../lib/storage";
 import FilePicker from "../components/FilePicker";
 import {
@@ -76,7 +71,7 @@ function Dashboard() {
   );
 }
 
-function CampPage(props: { url?: string; path?: string}) {
+function CampPage(props: { url?: string; path?: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -133,10 +128,10 @@ function CampPage(props: { url?: string; path?: string}) {
             <a
               class="text-red-900 underline"
               target="_blank"
-              href="https://www.familyid.com/organizations/11694/reports"
+              href="https://students.arbitersports.com/organizations/11694/reports/1072445"
               rel="noreferrer"
             >
-              Camp 2023 Report
+              Camp 2024 Report
             </a>{" "}
             from FamilyID first.
           </div>
