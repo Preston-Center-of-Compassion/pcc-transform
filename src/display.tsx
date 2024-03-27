@@ -1,15 +1,15 @@
 import clsx from "clsx";
 import { createContext, h } from "preact";
-import { StateUpdater, useContext } from "preact/hooks";
+import { Dispatch, StateUpdater, useContext } from "preact/hooks";
 import { toDisplayValue, Report } from "./lib/data";
 
 export type HeadersMask = Record<string, boolean>;
 export type Data = {
   report: Report;
   headersMask: HeadersMask;
-  setHeadersMask: StateUpdater<HeadersMask>;
+  setHeadersMask: Dispatch<StateUpdater<HeadersMask>>;
   search: string;
-  setSearch: StateUpdater<string>;
+  setSearch: Dispatch<StateUpdater<string>>;
 };
 
 export const Data = createContext<Data>({
@@ -19,8 +19,8 @@ export const Data = createContext<Data>({
   },
   headersMask: {},
   search: "",
-  setSearch: null,
-  setHeadersMask: null,
+  setSearch: (prevState: string) => prevState,
+  setHeadersMask: (prevState) => prevState,
 });
 
 export function Table({ className }: { className?: string }) {

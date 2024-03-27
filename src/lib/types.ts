@@ -143,3 +143,5 @@ export const HEADERS = [
   "Total",
   "Payment Method",
 ] as const;
+
+export type SimpleStateUpdater<S> = (prevState: S) => S;
