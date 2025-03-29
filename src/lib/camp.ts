@@ -13,15 +13,15 @@ export const COHORT_TO_GROUP = {
   "11-13 girls": "Twister",
 } as const;
 
-/** 2024 */
+/** 2025 */
 export const WEEKS = [
-  "June 26 - June 28",
-  "July 1 - July 3",
-  "July 8 - July 12",
-  "July 15 - July 19",
-  "July 22 - July 26",
-  "July 29 - August 2",
-  "August 5 - August 9",
+  "June 30 - July 3",
+  "July 7 - July 11",
+  "July 14 - July 18",
+  "July 21 - July 25",
+  "July 28 - August 1",
+  "August 4 - August 8",
+  "August 11 - August 15",
 ];
 
 export const SECTION_HEADERS = [
