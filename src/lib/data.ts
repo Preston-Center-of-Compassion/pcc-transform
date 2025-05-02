@@ -1,4 +1,5 @@
 import { parse, unparse } from "papaparse";
+import * as XLSX from "xlsx";
 
 export type CellValue = string | boolean | number | null | undefined;
 export type Header = string;
@@ -6,13 +7,10 @@ export type Row = Record<Header, CellValue>;
 export type Report = {
   headers: Header[];
   rows: Row[];
-}
-
+};
 
 /** A function that transforms row and header data. */
-export type Transform = (
-  report: Report,
-) => void;
+export type Transform = (report: Report) => void;
 
 export const DAYS_OF_WEEK = [
   "Sunday",
@@ -21,8 +19,8 @@ export const DAYS_OF_WEEK = [
   "Wednesday",
   "Thursday",
   "Friday",
-  "Saturday"
-]
+  "Saturday",
+];
 
 export const sanitizeValue = (val: CellValue): CellValue => {
   if (typeof val === "string") {
@@ -36,7 +34,7 @@ export const sanitizeValue = (val: CellValue): CellValue => {
     }
   }
   return val;
-}
+};
 
 /** Given a value, returns a general display string. */
 export const toDisplayValue = (val: CellValue) => {
@@ -45,7 +43,7 @@ export const toDisplayValue = (val: CellValue) => {
       return val.toString();
     case "string":
       return val.trim().length > 50
-        ? `${val.trim().slice(0, 50)  }...`
+        ? `${val.trim().slice(0, 50)}...`
         : val.trim();
     case "boolean":
       return val ? "Yes" : "No";
@@ -75,12 +73,8 @@ export function parseCSVFileFromInput(
         console.log(report);
 
         // // Apply transformations
-        applyTransforms(
-          report,
-          ...transforms,
-          sandbox
-        );
-        
+        applyTransforms(report, ...transforms, sandbox);
+
         return resolve(report);
       },
       error(error) {
@@ -97,31 +91,44 @@ export function createReport(
 ): Report {
   return {
     headers: [...new Set(headers)],
-    rows: rowArrays.map(rowArray => rowArray.reduce((row, value, headerIndex) => {
+    rows: rowArrays.map((rowArray) =>
+      rowArray.reduce((row, value, headerIndex) => {
         // Iterate through value array (which corresponds to headers array)
         value = sanitizeValue(value);
         const header = headers[headerIndex];
-  
+
         // Set value of cell if not yet set
         return {
           ...row,
-          [header]: !row[header] && value ? value : row[header]
-        }
+          [header]: !row[header] && value ? value : row[header],
+        };
       }, {})
-    )
-  }
+    ),
+  };
 }
 
 /** Applies given transforms in order on the data. */
-export function applyTransforms(
-  report: Report,
-  ...transforms: Transform[]
-) {
+export function applyTransforms(report: Report, ...transforms: Transform[]) {
   for (const transform of transforms) {
     transform(report);
-    report.headers = [...new Set(report.rows.flatMap((row)=> Object.keys(row)))]
+    report.headers = [
+      ...new Set(report.rows.flatMap((row) => Object.keys(row))),
+    ];
   }
 }
+
+export const downloadAsExcel = (
+  headers: Report["headers"],
+  rows: Report["rows"],
+  filename: string
+) => {
+  const worksheet = XLSX.utils.json_to_sheet(rows, {
+    header: headers,
+  });
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
+  XLSX.writeFile(workbook, filename, { compression: true });
+};
 
 /** Returns a object URL for the row data in a CSV file.  */
 export const downloadAsCSV = (
@@ -150,9 +157,7 @@ export const downloadAsCSV = (
 
 // TRANSFORMS
 
-export const removeColumns: Transform = (
-  report
-) => {
+export const removeColumns: Transform = (report) => {
   for (const row of report.rows) {
     delete row["Text"];
   }
@@ -163,18 +168,16 @@ export const fixWeirdCharacters: Transform = (report) => {
   for (const row of report.rows) {
     for (const header of report.headers) {
       if (typeof row[header] === "string") {
-        row[header] = (row[header] as string).replace("’", "'")
+        row[header] = (row[header] as string).replace("’", "'");
       }
     }
   }
-}
-
+};
 
 export const assignContact: Transform = (report) => {
   report.rows.forEach((row) => {
-    row[
-      "Contact"
-    ] = `${row["Participant First Name"]} ${row["Participant Last Name"]}`;
+    row["Contact"] =
+      `${row["Participant First Name"]} ${row["Participant Last Name"]}`;
   });
 };
 
@@ -196,5 +199,4 @@ const sandbox: Transform = (report) => {
     }
   }
   // ----
-
 };

@@ -6,7 +6,7 @@ import {
   Report,
   assignContact,
   castSignOffColumns,
-  downloadAsCSV,
+  downloadAsExcel,
   parseCSVFileFromInput,
   removeColumns,
 } from "../lib/data";
@@ -34,14 +34,14 @@ function Dashboard() {
             }
             href={"#"}
             onClick={() =>
-              downloadAsCSV(
+              downloadAsExcel(
                 headers,
                 rows,
-                `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.csv`
+                `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.xlsx`
               )
             }
           >
-            CSV Download
+            Excel Download
           </a>
           {isFiltering && (
             <a
@@ -50,14 +50,14 @@ function Dashboard() {
               }
               href={"#"}
               onClick={() =>
-                downloadAsCSV(
+                downloadAsExcel(
                   filteredHeaders,
                   rows,
-                  `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.csv`
+                  `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.xlsx`
                 )
               }
             >
-              Filtered CSV Download
+              Filtered Excel Download
             </a>
           )}
         </div>
@@ -124,14 +124,14 @@ function CampPage(props: { url?: string; path?: string }) {
       <main class={"mx-auto px-5 my-16 space-y-5"}>
         {!file && (
           <div>
-            Download a CSV of the{" "}
+            Download a Excel sheet of the{" "}
             <a
               class="text-red-900 underline"
               target="_blank"
               href="https://students.arbitersports.com/organizations/11694/reports/1072445"
               rel="noreferrer"
             >
-              Camp 2024 Report
+              Camp 2025 Report
             </a>{" "}
             from FamilyID first.
           </div>

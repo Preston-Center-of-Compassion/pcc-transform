@@ -32,7 +32,6 @@ export const SECTION_HEADERS = [
   "5-Week Camp: Extended Hours",
   "4-Week Camp: Week options",
   "4-Week Camp: Extended Hours",
-  "4-Week Camp: Extended Hours",
   "3-Week Camp: Week options",
   "3-Week Camp: Extended Hours",
   "2-Week Camp: Week options",
@@ -42,7 +41,7 @@ export const SECTION_HEADERS = [
 ];
 
 export const calculateAgeAndCohort: Transform = (report) => {
-  const referenceDate = new Date("06/26/2024");
+  const referenceDate = new Date("06/30/2025");
 
   function calculateAge(birthDate: Date) {
     let years = referenceDate.getFullYear() - birthDate.getFullYear();
