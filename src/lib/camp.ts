@@ -15,29 +15,29 @@ export const COHORT_TO_GROUP = {
 
 /** 2025 */
 export const WEEKS = [
-  "June 30 - July 3",
-  "July 7 - July 11",
-  "July 14 - July 18",
-  "July 21 - July 25",
-  "July 28 - August 1",
-  "August 4 - August 8",
-  "August 11 - August 15",
+  "June 29 – July 2 (Friday, July 3 closed)",
+  "July 6 – July 10",
+  "July 13 – July 17",
+  "July 20 – July 24",
+  "July 27 – July 31",
+  "August 3 – August 7",
+  "August 10 – August 14",
 ];
 
 export const SECTION_HEADERS = [
-  "Full 7-Week Camp: Extended Hours",
-  "6-Week Camp: Week options",
-  "6-Week Camp: Extended Hours",
-  "5-Week Camp: Week options",
-  "5-Week Camp: Extended Hours",
-  "4-Week Camp: Week options",
-  "4-Week Camp: Extended Hours",
-  "3-Week Camp: Week options",
-  "3-Week Camp: Extended Hours",
-  "2-Week Camp: Week options",
-  "2-Week Camp: Extended Hours",
-  "1-Week Camp: Week options",
-  "1-Week Camp: Extended Hours",
+  "Full 7-Week Program: Extended Hours",
+  "6-Week Program: Week options",
+  "6-Week Program: Extended Hours",
+  "5-Week Program: Week options",
+  "5-Week Program: Extended Hours",
+  "4-Week Program: Week options",
+  "4-Week Program: Extended Hours",
+  "3-Week Program: Week options",
+  "3-Week Program: Extended Hours",
+  "2-Week Program: Week options",
+  "2-Week Program: Extended Hours",
+  "1-Week Program: Week options",
+  "1-Week Program: Extended Hours",
 ];
 
 export const calculateAgeAndCohort: Transform = (report) => {
@@ -130,7 +130,7 @@ export const assignWeeks: Transform = (report) => {
 
       SECTION_HEADERS.forEach((sectionHeader) => {
         if (
-          row["Sections"] === "Full 7-Week Camp" ||
+          row["Sections"] === "Full 7-Week Program" ||
           (row[sectionHeader] &&
             (row[sectionHeader] as string).includes(weekSpan))
         ) {

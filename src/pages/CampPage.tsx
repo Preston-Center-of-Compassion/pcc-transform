@@ -128,10 +128,10 @@ function CampPage(props: { url?: string; path?: string }) {
             <a
               class="text-red-900 underline"
               target="_blank"
-              href="https://students.arbitersports.com/organizations/11694/reports/1072445"
+              href="https://students.arbitersports.com/organizations/11694/reports/1494446"
               rel="noreferrer"
             >
-              Camp 2025 Report
+              Camp 2026 Report
             </a>{" "}
             from FamilyID first.
           </div>
