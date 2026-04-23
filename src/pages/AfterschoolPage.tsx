@@ -6,7 +6,7 @@ import {
   Report,
   assignContact,
   castSignOffColumns,
-  downloadAsCSV,
+  downloadAsExcel,
   fixWeirdCharacters,
   parseCSVFileFromInput,
   removeColumns,
@@ -35,14 +35,14 @@ function Dashboard() {
             }
             href={"#"}
             onClick={() =>
-              downloadAsCSV(
+              downloadAsExcel(
                 headers,
                 rows,
-                `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.csv`
+                `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.xlsx`
               )
             }
           >
-            CSV Download
+            Excel Download
           </a>
           {isFiltering && (
             <a
@@ -51,14 +51,14 @@ function Dashboard() {
               }
               href={"#"}
               onClick={() =>
-                downloadAsCSV(
+                downloadAsExcel(
                   filteredHeaders,
                   rows,
-                  `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.csv`
+                  `FAMILYID_IMPORT_FOR_ACT_${new Date().toDateString()}.xlsx`
                 )
               }
             >
-              Filtered CSV Download
+              Filtered Excel Download
             </a>
           )}
         </div>
