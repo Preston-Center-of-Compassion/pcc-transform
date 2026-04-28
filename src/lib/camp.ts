@@ -41,7 +41,7 @@ export const SECTION_HEADERS = [
 ];
 
 export const calculateAgeAndCohort: Transform = (report) => {
-  const referenceDate = new Date("06/30/2025");
+  const referenceDate = new Date("06/29/2026"); // TODO: CHANGE EACH YEAR
 
   function calculateAge(birthDate: Date) {
     let years = referenceDate.getFullYear() - birthDate.getFullYear();
