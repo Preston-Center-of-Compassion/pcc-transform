@@ -13,7 +13,7 @@ export const COHORT_TO_GROUP = {
   "11-13 girls": "Twister",
 } as const;
 
-/** 2025 */
+/** 2026 */
 export const WEEKS = [
   "June 29 – July 2 (Friday, July 3 closed)",
   "July 6 – July 10",
@@ -25,7 +25,7 @@ export const WEEKS = [
 ];
 
 export const SECTION_HEADERS = [
-  "Full 7-Week Program: Extended Hours",
+  "7-Week Program: Extended Hours",
   "6-Week Program: Week options",
   "6-Week Program: Extended Hours",
   "5-Week Program: Week options",
@@ -130,7 +130,7 @@ export const assignWeeks: Transform = (report) => {
 
       SECTION_HEADERS.forEach((sectionHeader) => {
         if (
-          row["Sections"] === "Full 7-Week Program" ||
+          row["Sections"] === "7-Week Program" ||
           (row[sectionHeader] &&
             (row[sectionHeader] as string).includes(weekSpan))
         ) {
