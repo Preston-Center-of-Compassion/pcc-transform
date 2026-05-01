@@ -25,7 +25,7 @@ export const WEEKS = [
 ];
 
 export const SECTION_HEADERS = [
-  "7-Week Program: Extended Hours",
+  "Full 7-Week Program: Extended Hours",
   "6-Week Program: Week options",
   "6-Week Program: Extended Hours",
   "5-Week Program: Week options",
@@ -130,7 +130,7 @@ export const assignWeeks: Transform = (report) => {
 
       SECTION_HEADERS.forEach((sectionHeader) => {
         if (
-          row["Sections"] === "7-Week Program" ||
+          row["Sections"] === "Full 7-Week Program" ||
           (row[sectionHeader] &&
             (row[sectionHeader] as string).includes(weekSpan))
         ) {
