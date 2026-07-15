@@ -1,3 +1,7 @@
 node_modules/
-/build
+/dist
 /*.log
+
+# FamilyID exports contain participant PII — never commit them
+*.csv
+*.xlsx

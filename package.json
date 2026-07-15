@@ -3,12 +3,13 @@
   "name": "pcc-data",
   "version": "2.0.0",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production preact build",
-    "serve": "sirv build --cors --single",
-    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider preact watch --refresh",
-    "lint": "eslint src",
-    "test": "jest"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "lint": "eslint src"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
@@ -17,7 +18,7 @@
       "plugin:@typescript-eslint/recommended"
     ],
     "ignorePatterns": [
-      "build/"
+      "dist/"
     ]
   },
   "dependencies": {
@@ -25,33 +26,21 @@
     "papaparse": "^5.5.2",
     "preact": "^10.26.5",
     "preact-router": "^4.1.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.10.1",
     "@types/papaparse": "^5.3.15",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "autoprefixer": "^10.4.21",
-    "cross-env": "^7.0.3",
-    "cssnano": "^6.1.2",
     "eslint": "^8.57.1",
     "eslint-config-preact": "^1.5.0",
-    "jest": "^29.7.0",
     "postcss": "^8.5.3",
-    "postcss-load-config": "^5.1.0",
-    "preact-cli": "^3.5.1",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.5.14",
-    "sirv-cli": "^2.0.2",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3"
-  },
-  "jest": {
-    "preset": "jest-preset-preact",
-    "setupFiles": [
-      "<rootDir>/tests/__mocks__/browserMocks.ts",
-      "<rootDir>/tests/__mocks__/setupTests.ts"
-    ]
-  },
-  "packageManager": "pnpm@10.7.0+sha512.6b865ad4b62a1d9842b61d674a393903b871d9244954f652b8842c2b553c72176b278f64c463e52d40fff8aba385c235c8c9ecf5cc7de4fd78b8bb6d49633ab6"
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
 }

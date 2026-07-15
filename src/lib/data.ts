@@ -65,15 +65,22 @@ export function parseCSVFileFromInput(
       complete(results) {
         const [rawHeaders, ...rowArrays] = results.data;
 
-        // Remove empty last row
-        rowArrays.pop();
+        // papaparse yields a trailing empty row when the file ends in a
+        // newline. Drop it, but only when it is actually empty so a real
+        // participant is never discarded.
+        const lastRow = rowArrays[rowArrays.length - 1];
+        if (
+          lastRow &&
+          lastRow.every(
+            (cell) => cell === null || cell === undefined || cell === ""
+          )
+        ) {
+          rowArrays.pop();
+        }
 
         const report = createReport(rawHeaders as string[], rowArrays);
 
-        console.log(report);
-
-        // // Apply transformations
-        applyTransforms(report, ...transforms, sandbox);
+        applyTransforms(report, ...transforms);
 
         return resolve(report);
       },
@@ -168,7 +175,7 @@ export const fixWeirdCharacters: Transform = (report) => {
   for (const row of report.rows) {
     for (const header of report.headers) {
       if (typeof row[header] === "string") {
-        row[header] = (row[header] as string).replace("’", "'");
+        row[header] = (row[header] as string).replaceAll("’", "'");
       }
     }
   }
@@ -187,16 +194,4 @@ export const castSignOffColumns: Transform = (report) => {
   report.rows.forEach((row) => {
     boolColumns.forEach((col) => (row[col] = Boolean(row[col])));
   });
-};
-
-const sandbox: Transform = (report) => {
-  // ----
-  // SANDBOX
-
-  for (const row of report.rows) {
-    if (row["Participant First Name"] === "Sinead") {
-      console.log(row);
-    }
-  }
-  // ----
 };

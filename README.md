@@ -1,19 +1,18 @@
-# client
+# PCC Data
+
+A small Preact + Vite app for transforming FamilyID camp/afterschool CSV
+exports into the Excel format expected by ACT, run entirely in the browser.
 
 ## CLI Commands
 
-- `pnpm install`: Installs dependencies
+- `npm install`: Install dependencies
 
-- `pnpm run dev`: Run a development, HMR server
+- `npm run dev`: Start the Vite dev server with hot module reloading
 
-- `pnpm run serve`: Run a production-like server
+- `npm run build`: Type-check and produce a production build in `dist/`
 
-- `pnpm run build`: Production-ready build
+- `npm run preview`: Serve the production build locally
 
-- `pnpm run lint`: Pass TypeScript files using ESLint
+- `npm run typecheck`: Type-check with the TypeScript compiler
 
-- `pnpm run test`: Run Jest and Enzyme with
-  [`enzyme-adapter-preact-pure`](https://github.com/preactjs/enzyme-adapter-preact-pure) for
-  your tests
-
-For detailed explanation on how things work, checkout the [CLI Readme](https://github.com/developit/preact-cli/blob/master/README.md).
+- `npm run lint`: Lint the TypeScript sources with ESLint

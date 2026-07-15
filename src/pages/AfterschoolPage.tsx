@@ -1,4 +1,5 @@
-import { h, Fragment } from "preact";
+import { h, Fragment, FunctionComponent } from "preact";
+import { RoutableProps } from "preact-router";
 import { useContext, useEffect, useMemo, useState } from "preact/hooks";
 import { loadData, storeData } from "../lib/storage";
 import FilePicker from "../components/FilePicker";
@@ -72,7 +73,7 @@ function Dashboard() {
   );
 }
 
-function AfterschoolPage(props: { url?: string; path?: string }) {
+const AfterschoolPage: FunctionComponent<RoutableProps> = () => {
   const [file, setFile] = useState<File | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -106,8 +107,6 @@ function AfterschoolPage(props: { url?: string; path?: string }) {
         assignProgram,
         assignContact,
       ]).then((report) => {
-        console.log(report);
-
         setReport(report);
         setHeadersMask(
           loadData<HeadersMask>("headersMaskAfterschool") ??
@@ -152,6 +151,6 @@ function AfterschoolPage(props: { url?: string; path?: string }) {
       </main>
     </Data.Provider>
   );
-}
+};
 
 export default AfterschoolPage;

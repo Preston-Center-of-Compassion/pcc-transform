@@ -1,4 +1,5 @@
-import { h, Fragment } from "preact";
+import { h, Fragment, FunctionComponent } from "preact";
+import { RoutableProps } from "preact-router";
 import { useContext, useEffect, useMemo, useState } from "preact/hooks";
 import { loadData, storeData } from "../lib/storage";
 import FilePicker from "../components/FilePicker";
@@ -71,7 +72,7 @@ function Dashboard() {
   );
 }
 
-function CampPage(props: { url?: string; path?: string }) {
+const CampPage: FunctionComponent<RoutableProps> = () => {
   const [file, setFile] = useState<File | null>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -105,8 +106,6 @@ function CampPage(props: { url?: string; path?: string }) {
         assignSource,
         assignContact,
       ]).then((report) => {
-        console.log(report);
-
         setReport(report);
         setHeadersMask(
           loadData<HeadersMask>("headersMask") ??
@@ -151,6 +150,6 @@ function CampPage(props: { url?: string; path?: string }) {
       </main>
     </Data.Provider>
   );
-}
+};
 
 export default CampPage;
